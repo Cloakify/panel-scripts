@@ -1069,7 +1069,7 @@ verify_and_start_container() {
 
 install_pasarguard_script() {
     FETCH_REPO="Cloakify/panel-scripts"
-    SCRIPT_URL="https://github.com/$FETCH_REPO/raw/main/pasarguard.sh"
+    SCRIPT_URL="https://github.com/$FETCH_REPO/raw/master/pasarguard.sh"
     colorized_echo blue "Installing pasarguard script"
     curl -sSL $SCRIPT_URL | install -m 755 /dev/stdin /usr/local/bin/pasarguard
     colorized_echo green "pasarguard script installed successfully"
@@ -4245,7 +4245,7 @@ update_command() {
 
 update_pasarguard_script() {
     FETCH_REPO="Cloakify/panel-scripts"
-    SCRIPT_URL="https://github.com/$FETCH_REPO/raw/main/pasarguard.sh"
+    SCRIPT_URL="https://github.com/$FETCH_REPO/raw/master/pasarguard.sh"
     colorized_echo blue "Updating pasarguard script"
     curl -sSL $SCRIPT_URL | install -m 755 /dev/stdin /usr/local/bin/pasarguard
     colorized_echo green "pasarguard script updated successfully"
@@ -4299,10 +4299,10 @@ install_node_command() {
 
     if [ "$(id -u)" = "0" ]; then
         colorized_echo blue "Running node installation with sudo..."
-        sudo bash -c "$(curl -sL https://github.com/Cloakify/panel-scripts/raw/main/pg-node.sh)" @ install
+        sudo bash -c "$(curl -sL https://github.com/Cloakify/panel-scripts/raw/master/pg-node.sh)" @ install
     else
         colorized_echo blue "Running node installation without sudo..."
-        bash -c "$(curl -sL https://github.com/Cloakify/panel-scripts/raw/main/pg-node.sh)" @ install
+        bash -c "$(curl -sL https://github.com/Cloakify/panel-scripts/raw/master/pg-node.sh)" @ install
     fi
 
     if [ $? -eq 0 ]; then

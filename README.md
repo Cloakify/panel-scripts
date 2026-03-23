@@ -24,37 +24,37 @@
 -   **Install pasarguard with SQLite**:
 
     ```bash
-    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/main/pasarguard.sh && sudo bash /tmp/pg.sh install
+    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/master/pasarguard.sh && sudo bash /tmp/pg.sh install
     ```
 
 -   **Install pasarguard with MySQL**:
 
     ```bash
-    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/main/pasarguard.sh && sudo bash /tmp/pg.sh install --database mysql
+    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/master/pasarguard.sh && sudo bash /tmp/pg.sh install --database mysql
     ```
 
 -   **Install pasarguard with PostgreSQL**:
 
     ```bash
-    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/main/pasarguard.sh && sudo bash /tmp/pg.sh install --database postgresql
+    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/master/pasarguard.sh && sudo bash /tmp/pg.sh install --database postgresql
     ```
 
 -   **Install pasarguard with TimescaleDB(v1+ only) and pre-release version**:
 
     ```bash
-    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/main/pasarguard.sh && sudo bash /tmp/pg.sh install --database timescaledb --pre-release
+    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/master/pasarguard.sh && sudo bash /tmp/pg.sh install --database timescaledb --pre-release
     ```
 
 -   **Install pasarguard with MariaDB and Dev branch**:
 
     ```bash
-    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/main/pasarguard.sh && sudo bash /tmp/pg.sh install --database mariadb --dev
+    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/master/pasarguard.sh && sudo bash /tmp/pg.sh install --database mariadb --dev
     ```
 
 -   **Install pasarguard with MariaDB and Manual version**:
 
     ```bash
-    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/main/pasarguard.sh && sudo bash /tmp/pg.sh install --database mariadb --version v0.5.2
+    curl -fsSLo /tmp/pg.sh https://github.com/Cloakify/panel-scripts/raw/master/pasarguard.sh && sudo bash /tmp/pg.sh install --database mariadb --version v0.5.2
     ```
 
 ## Installing Node
@@ -63,22 +63,22 @@
 
 -   **Install Node**
     ```bash
-    curl -fsSLo /tmp/pg-node.sh https://github.com/Cloakify/panel-scripts/raw/main/pg-node.sh && sudo bash /tmp/pg-node.sh install
+    curl -fsSLo /tmp/pg-node.sh https://github.com/Cloakify/panel-scripts/raw/master/pg-node.sh && sudo bash /tmp/pg-node.sh install
     ```
 -   **Install Node Manual version:**
     ```bash
-    curl -fsSLo /tmp/pg-node.sh https://github.com/Cloakify/panel-scripts/raw/main/pg-node.sh && sudo bash /tmp/pg-node.sh install --version 0.1.0
+    curl -fsSLo /tmp/pg-node.sh https://github.com/Cloakify/panel-scripts/raw/master/pg-node.sh && sudo bash /tmp/pg-node.sh install --version 0.1.0
     ```
 -   **Install Node pre-release version:**
 
     ```bash
-    curl -fsSLo /tmp/pg-node.sh https://github.com/Cloakify/panel-scripts/raw/main/pg-node.sh && sudo bash /tmp/pg-node.sh install --pre-release
+    curl -fsSLo /tmp/pg-node.sh https://github.com/Cloakify/panel-scripts/raw/master/pg-node.sh && sudo bash /tmp/pg-node.sh install --pre-release
     ```
 
 -   **Install Node with custom name:**
 
     ```bash
-    curl -fsSLo /tmp/pg-node.sh https://github.com/Cloakify/panel-scripts/raw/main/pg-node.sh && sudo bash /tmp/pg-node.sh install --name Node2
+    curl -fsSLo /tmp/pg-node.sh https://github.com/Cloakify/panel-scripts/raw/master/pg-node.sh && sudo bash /tmp/pg-node.sh install --name Node2
     ```
 
     > 📌 **Tip:**  
