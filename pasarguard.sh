@@ -17,7 +17,7 @@ COMPOSE_FILE="$APP_DIR/docker-compose.yml"
 ENV_FILE="$APP_DIR/.env"
 LAST_XRAY_CORES=10
 PANEL_REPO="Cloakify/cloakify-panel-v2"
-PANEL_REPO_BRANCH="main"
+PANEL_REPO_BRANCH="master"
 GITHUB_TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 
 replace_or_append_env_var() {
@@ -3316,7 +3316,7 @@ install_pasarguard() {
     local database_type=$3
 
     FILES_URL_PREFIX="https://raw.githubusercontent.com/${PANEL_REPO}"
-    COMPOSE_FILES_URL_PREFIX="https://raw.githubusercontent.com/Cloakify/panel-scripts/main"
+    COMPOSE_FILES_URL_PREFIX="https://raw.githubusercontent.com/Cloakify/panel-scripts/master"
 
     mkdir -p "$DATA_DIR"
     mkdir -p "$APP_DIR"

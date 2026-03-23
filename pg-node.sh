@@ -610,7 +610,7 @@ read_and_save_file() {
 install_node() {
     local node_version=$1
     FILES_URL_PREFIX="https://raw.githubusercontent.com/PasarGuard/node/main"
-    COMPOSE_FILES_URL_PREFIX="https://raw.githubusercontent.com/Cloakify/panel-scripts/main"
+    COMPOSE_FILES_URL_PREFIX="https://raw.githubusercontent.com/Cloakify/panel-scripts/master"
     colorized_echo blue "Creating directories..."
     colorized_echo cyan "  Command: mkdir -p $DATA_DIR $DATA_DIR/certs $APP_DIR"
     mkdir -p "$DATA_DIR"
