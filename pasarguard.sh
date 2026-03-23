@@ -16,6 +16,9 @@ THEMES_DIR="$APP_DIR/themes"
 COMPOSE_FILE="$APP_DIR/docker-compose.yml"
 ENV_FILE="$APP_DIR/.env"
 LAST_XRAY_CORES=10
+PANEL_REPO="Cloakify/cloakify-panel-v2"
+PANEL_REPO_BRANCH="main"
+GITHUB_TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 
 replace_or_append_env_var() {
     local key="$1"
@@ -119,6 +122,45 @@ is_valid_proxy_url() {
         return 0
     fi
     return 1
+}
+
+ensure_github_token_for_private_panel() {
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        return 0
+    fi
+
+    colorized_echo yellow "Cloakify panel repository is private."
+    colorized_echo yellow "A GitHub token with read access to ${PANEL_REPO} is required."
+    read -rsp "Enter GitHub token: " GITHUB_TOKEN
+    echo
+
+    if [ -z "${GITHUB_TOKEN:-}" ]; then
+        colorized_echo red "GitHub token is required to continue installation."
+        exit 1
+    fi
+}
+
+github_api_get() {
+    local url="$1"
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        curl -sSL -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "$url"
+    else
+        curl -sSL -H "Accept: application/vnd.github+json" "$url"
+    fi
+}
+
+github_download_raw_file() {
+    local repo="$1"
+    local file_path="$2"
+    local ref="$3"
+    local output_path="$4"
+    local url="https://api.github.com/repos/${repo}/contents/${file_path}?ref=${ref}"
+
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        curl -fsSL -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github.raw" "$url" -o "$output_path"
+    else
+        curl -fsSL -H "Accept: application/vnd.github.raw" "$url" -o "$output_path"
+    fi
 }
 
 get_backup_proxy_url() {
@@ -3266,14 +3308,18 @@ install_pasarguard() {
     local major_version=$2
     local database_type=$3
 
-    FILES_URL_PREFIX="https://raw.githubusercontent.com/pasarguard/panel"
+    FILES_URL_PREFIX="https://raw.githubusercontent.com/${PANEL_REPO}"
     COMPOSE_FILES_URL_PREFIX="https://raw.githubusercontent.com/Cloakify/scripts/main"
 
     mkdir -p "$DATA_DIR"
     mkdir -p "$APP_DIR"
 
     colorized_echo blue "Fetching .env file"
-    curl -sL "$FILES_URL_PREFIX/main/.env.example" -o "$APP_DIR/.env"
+    if ! github_download_raw_file "$PANEL_REPO" ".env.example" "$PANEL_REPO_BRANCH" "$APP_DIR/.env"; then
+        colorized_echo red "Failed to download .env.example from ${PANEL_REPO}."
+        colorized_echo red "Ensure your GitHub token has repository read access."
+        exit 1
+    fi
 
     colorized_echo green "File saved in $APP_DIR/.env"
 
@@ -3341,7 +3387,11 @@ install_pasarguard() {
         colorized_echo red "Using SQLite as database"
         echo "----------------------------"
         colorized_echo blue "Fetching compose file"
-        curl -sL "$FILES_URL_PREFIX/main/docker-compose.yml" -o "$COMPOSE_FILE"
+        if ! github_download_raw_file "$PANEL_REPO" "docker-compose.yml" "$PANEL_REPO_BRANCH" "$COMPOSE_FILE"; then
+            colorized_echo red "Failed to download docker-compose.yml from ${PANEL_REPO}."
+            colorized_echo red "Ensure your GitHub token has repository read access."
+            exit 1
+        fi
 
         sed -i 's/^# \(SQLALCHEMY_DATABASE_URL = .*\)$/\1/' "$APP_DIR/.env"
 
@@ -3642,6 +3692,14 @@ install_command() {
             fi
             shift 2
             ;;
+        --github-token)
+            if [ -z "${2:-}" ]; then
+                colorized_echo red "Error: --github-token requires a value."
+                exit 1
+            fi
+            GITHUB_TOKEN="$2"
+            shift 2
+            ;;
         *)
             echo "Unknown option: $1"
             exit 1
@@ -3673,13 +3731,17 @@ install_command() {
     fi
     detect_compose
     install_pasarguard_script
+    ensure_github_token_for_private_panel
     # Function to check if a version exists in the GitHub releases
     check_version_exists() {
         local version=$1
-        repo_url="https://api.github.com/repos/pasarguard/panel/releases"
+        repo_url="https://api.github.com/repos/${PANEL_REPO}/releases"
 
         if [ "$version" == "latest" ]; then
-            latest_tag=$(curl -s ${repo_url}/latest | jq -r '.tag_name')
+            latest_tag=$(github_api_get "${repo_url}/latest" | jq -r '.tag_name')
+            if [ -z "$latest_tag" ] || [ "$latest_tag" = "null" ]; then
+                return 1
+            fi
             major_version=$(echo "$latest_tag" | sed 's/^v//' | sed 's/[^0-9]*\([0-9]*\)\..*/\1/')
             return 0
         fi
@@ -3690,8 +3752,8 @@ install_command() {
         fi
 
         if [ "$version" == "pre-release" ]; then
-            local latest_stable_tag=$(curl -s "$repo_url/latest" | jq -r '.tag_name')
-            local latest_pre_release_tag=$(curl -s "$repo_url" | jq -r '[.[] | select(.prerelease == true)][0].tag_name')
+            local latest_stable_tag=$(github_api_get "$repo_url/latest" | jq -r '.tag_name')
+            local latest_pre_release_tag=$(github_api_get "$repo_url" | jq -r '[.[] | select(.prerelease == true)][0].tag_name')
 
             if [ "$latest_stable_tag" == "null" ] && [ "$latest_pre_release_tag" == "null" ]; then
                 return 1 # No releases found at all
@@ -3713,7 +3775,13 @@ install_command() {
         fi
 
         # Check if the repo contains the version tag
-        if curl -s -o /dev/null -w "%{http_code}" "${repo_url}/tags/${version}" | grep -q "^200$"; then
+        local tag_status
+        if [ -n "${GITHUB_TOKEN:-}" ]; then
+            tag_status=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "${repo_url}/tags/${version}")
+        else
+            tag_status=$(curl -s -o /dev/null -w "%{http_code}" -H "Accept: application/vnd.github+json" "${repo_url}/tags/${version}")
+        fi
+        if [ "$tag_status" = "200" ]; then
             major_version=$(echo "$version" | sed 's/^v//' | sed 's/[^0-9]*\([0-9]*\)\..*/\1/')
             return 0
         else
@@ -3736,6 +3804,7 @@ install_command() {
             echo "Installing $pasarguard_version version"
         else
             echo "Version $pasarguard_version does not exist. Please enter a valid version (e.g. v0.5.2)"
+            colorized_echo yellow "If repository access fails, re-run install with --github-token <token>."
             exit 1
         fi
     else
@@ -4291,6 +4360,10 @@ usage() {
     colorized_echo yellow "  edit            $(tput sgr0)– Edit docker-compose.yml (via nano or vi editor)"
     colorized_echo yellow "  edit-env        $(tput sgr0)– Edit environment file (via nano or vi editor)"
     colorized_echo yellow "  help            $(tput sgr0)– Show this help message"
+    echo
+    colorized_echo cyan "Install options:"
+    echo "  install [--database <mysql|mariadb|postgresql|timescaledb>] [--version <vX.Y.Z>|--dev|--pre-release]"
+    echo "          [--ssl|--no-ssl|--ssl-domain <domain>] [--ssl-http-port <port>] [--github-token <token>]"
 
     echo
     colorized_echo cyan "Directories:"
