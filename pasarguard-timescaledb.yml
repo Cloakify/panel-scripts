@@ -1,6 +1,9 @@
 services:
   pasarguard:
-    image: pasarguard/panel:latest
+    build:
+      context: /var/www/panel
+      dockerfile: Dockerfile
+    image: cloakify-panel:local
     restart: always
     env_file: .env
     network_mode: host

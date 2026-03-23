@@ -3279,6 +3279,13 @@ set_pasarguard_panel_image() {
     local service_name=""
     local image_name=""
     local updated_any=false
+    local has_local_build=""
+
+    has_local_build=$(yq eval -r '.services.pasarguard.build // ""' "$COMPOSE_FILE" 2>/dev/null || true)
+    if [ -n "$has_local_build" ] && [ "$has_local_build" != "null" ]; then
+        colorized_echo yellow "Local panel build detected in compose; skipping image override."
+        return 0
+    fi
 
     while IFS= read -r service_name; do
         [ -z "$service_name" ] && continue
@@ -3420,7 +3427,14 @@ install_pasarguard() {
 }
 
 up_pasarguard() {
-    $COMPOSE -f $COMPOSE_FILE -p "$APP_NAME" up -d --remove-orphans
+    local has_local_build=""
+    has_local_build=$(yq eval -r '.services.pasarguard.build // ""' "$COMPOSE_FILE" 2>/dev/null || true)
+    if [ -n "$has_local_build" ] && [ "$has_local_build" != "null" ]; then
+        colorized_echo yellow "Local panel build detected; running docker compose up with --build."
+        $COMPOSE -f $COMPOSE_FILE -p "$APP_NAME" up -d --build --remove-orphans
+    else
+        $COMPOSE -f $COMPOSE_FILE -p "$APP_NAME" up -d --remove-orphans
+    fi
 }
 
 follow_pasarguard_logs() {
