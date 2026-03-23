@@ -66,7 +66,7 @@ ENV_FILE="$APP_DIR/.env"
 SSL_CERT_FILE="$DATA_DIR/certs/ssl_cert.pem"
 SSL_KEY_FILE="$DATA_DIR/certs/ssl_key.pem"
 LAST_XRAY_CORES=5
-FETCH_REPO="Cloakify/scripts"
+FETCH_REPO="Cloakify/panel-scripts"
 SCRIPT_URL="https://github.com/$FETCH_REPO/raw/main/pg-node.sh"
 NODE_SERVICE_REPO="PasarGuard/node-serviced"
 NODE_SERVICE_RELEASE_API="https://api.github.com/repos/${NODE_SERVICE_REPO}/releases/latest"
@@ -610,7 +610,7 @@ read_and_save_file() {
 install_node() {
     local node_version=$1
     FILES_URL_PREFIX="https://raw.githubusercontent.com/PasarGuard/node/main"
-    COMPOSE_FILES_URL_PREFIX="https://raw.githubusercontent.com/Cloakify/scripts/main"
+    COMPOSE_FILES_URL_PREFIX="https://raw.githubusercontent.com/Cloakify/panel-scripts/main"
     colorized_echo blue "Creating directories..."
     colorized_echo cyan "  Command: mkdir -p $DATA_DIR $DATA_DIR/certs $APP_DIR"
     mkdir -p "$DATA_DIR"
