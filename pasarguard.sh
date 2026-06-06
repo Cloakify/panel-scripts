@@ -18,6 +18,7 @@ ENV_FILE="$APP_DIR/.env"
 LAST_XRAY_CORES=10
 PANEL_REPO="Cloakify/cloakify-panel-v2"
 PANEL_REPO_BRANCH="master"
+PANEL_IMAGE="resonarainc/cloakify-panel"
 GITHUB_TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 
 replace_or_append_env_var() {
@@ -3290,7 +3291,7 @@ set_pasarguard_panel_image() {
     while IFS= read -r service_name; do
         [ -z "$service_name" ] && continue
         image_name=$(yq eval -r ".services.\"${service_name}\".image // \"\"" "$COMPOSE_FILE" 2>/dev/null)
-        if [[ "$image_name" =~ ^pasarguard/panel([:@].*)?$ ]]; then
+        if [[ "$image_name" =~ ^(pasarguard/panel|resonarainc/cloakify-panel)([:@].*)?$ ]]; then
             yq -i ".services.\"${service_name}\".image = \"${target_image}\"" "$COMPOSE_FILE"
             updated_any=true
         fi
@@ -3416,9 +3417,9 @@ install_pasarguard() {
     fi
 
     # Install requested version
-    local target_image="pasarguard/panel:${pasarguard_version}"
+    local target_image="${PANEL_IMAGE}:${pasarguard_version}"
     if [ "$pasarguard_version" == "latest" ]; then
-        target_image="pasarguard/panel:latest"
+        target_image="${PANEL_IMAGE}:latest"
     fi
     set_pasarguard_panel_image "$target_image"
     colorized_echo green "File saved in $APP_DIR/docker-compose.yml"
